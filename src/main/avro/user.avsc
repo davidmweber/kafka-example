@@ -1,0 +1,9 @@
+{"namespace": "co.horn.avro",
+ "type": "record",
+ "name": "User",
+ "fields": [
+     {"name": "name", "type": "string"},
+     {"name": "email",  "type": ["string", "null"]},
+     {"name": "city", "type": ["string", "null"]}
+ ]
+}
