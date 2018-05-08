@@ -11,17 +11,20 @@ import co.horn.avro.User
 import io.confluent.kafka.serializers.{KafkaAvroDeserializer, KafkaAvroDeserializerConfig}
 import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
 
-import scala.sys.process._
-
-object ConsumerExample {
+object AvroConsumer {
 
   def main(args: Array[String]): Unit = {
 
     implicit val system: ActorSystem = ActorSystem("kafka-stream")
     implicit val mat: ActorMaterializer = ActorMaterializer()
 
-    // Retrieve the address of the container with the Kafka stack
-    val addr = ("lxc list" #| "grep kafka-streams" !!).split(" ")(5)
+    if (args.length != 1) {
+      println("Usage: AvroProducer <kafka address>")
+      System.exit(-1)
+    }
+
+    val addr = args(0)
+    println(s"Using Kafka suite at $addr")
     val props = new Properties()
 
     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,s"$addr:9092")
@@ -34,7 +37,7 @@ object ConsumerExample {
     props.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, "true" )
 
     val consumer = new KafkaConsumer[Long, User](props)
-    consumer.subscribe(Collections.singletonList("topic1"))
+    consumer.subscribe(Collections.singletonList("avro_user"))
 
     while(true) {
       val records = consumer.poll(100)

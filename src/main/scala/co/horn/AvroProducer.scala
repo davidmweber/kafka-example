@@ -11,16 +11,20 @@ import co.horn.avro.User
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 
-import scala.sys.process._
+object AvroProducer {
 
-object ProducerExample {
+  implicit val system: ActorSystem = ActorSystem("kafka-stream")
+  implicit val mat: ActorMaterializer = ActorMaterializer()
 
   def main(args: Array[String]): Unit = {
-    implicit val system: ActorSystem = ActorSystem("kafka-stream")
-    implicit val mat: ActorMaterializer = ActorMaterializer()
 
-    // Retrieve the address of the container with the Kafka stack
-    val addr = ("lxc list" #| "grep kafka-streams" !!).split(" ")(5)
+    if (args.length != 1) {
+      println("Usage: AvroProducer <kafka address>")
+      System.exit(-1)
+    }
+    val addr = args(0)
+    println(s"Using Kafka suite at $addr")
+
     val props = new Properties()
 
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,s"$addr:9092")
@@ -32,10 +36,10 @@ object ProducerExample {
     val producer = new KafkaProducer[Long, User](props)
 
     (1l until 100l).foreach{ v ⇒
-      val pr = new ProducerRecord("topic1", v, User(v.toString, None, None))
+      val pr = new ProducerRecord("avro_user", v, User(v.toString, None, None))
       producer.send(pr)
     }
-
+    println("Sent 100 records")
     system.terminate()
   }
 }
