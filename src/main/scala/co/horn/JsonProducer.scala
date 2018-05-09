@@ -6,18 +6,20 @@ package co.horn
 import java.util.Properties
 
 import co.horn.AvroProducer.system
-import co.horn.avro.User
+import co.horn.models.Frog
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
-import org.apache.kafka.connect.json.JsonSerializer
 import org.apache.kafka.common.serialization.LongSerializer
-import scala.sys.process._
+import org.apache.kafka.connect.json.JsonSerializer
 
 object JsonProducer {
 
   def main(args: Array[String]): Unit = {
 
     if (args.length != 1) {
-      println("Usage: AvroProducer <kafka address>")
+      println("Usage: JsonProducer <kafka address>")
       System.exit(-1)
     }
 
@@ -27,21 +29,23 @@ object JsonProducer {
     val props = new Properties()
 
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,s"$addr:9092")
-    props.put("schema.registry.url", s"http://$addr:8081")
     props.put(ProducerConfig.CLIENT_ID_CONFIG, "JsonTestProducer")
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[LongSerializer].getName)
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[JsonSerializer].getName)
 
-    val producer = new KafkaProducer[Long, User](props)
+    val mapper = new ObjectMapper() with ScalaObjectMapper
+    mapper.registerModule(DefaultScalaModule)
+    val producer = new KafkaProducer[Long, JsonNode](props)
 
     (1l until 100l).foreach{ v ⇒
       println(v)
-      val pr = new ProducerRecord("json_user", v, User(v.toString, None, None))
+      //val node: JsonNode = om.valueToTree(Frog(v.toString, "foo", "bar"))
+      val f = Frog("a", "b", "c")
+      val node = mapper.convertValue(f, classOf[JsonNode])
+      val pr = new ProducerRecord("json_user", v, node)
       producer.send(pr)
     }
 
     system.terminate()
-
-
   }
 }

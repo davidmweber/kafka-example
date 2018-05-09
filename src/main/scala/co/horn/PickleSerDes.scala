@@ -3,9 +3,9 @@
  */
 package co.horn
 
-import co.horn.avro.User
+import co.horn.models._
 import upickle.default._
 
 object PickleSerDes {
-  implicit def rwUser: ReadWriter[User] = macroRW
+  implicit def rwUser: ReadWriter[Frog] = macroRW
 }

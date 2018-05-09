@@ -19,7 +19,7 @@ object AvroConsumer {
     implicit val mat: ActorMaterializer = ActorMaterializer()
 
     if (args.length != 1) {
-      println("Usage: AvroProducer <kafka address>")
+      println("Usage: AvroConsumer <kafka address>")
       System.exit(-1)
     }
 
