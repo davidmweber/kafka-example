@@ -1,16 +1,16 @@
 name := "kafka-example"
 version := "0.1"
-scalaVersion := "2.12.6"
+scalaVersion := "2.12.7"
 fork in run := true
 resolvers += "Confluent" at "http://packages.confluent.io/maven/"
 scalacOptions in ThisBuild ++= Seq("-target:jvm-1.8", "-feature", "-language:postfixOps", "-deprecation")
 
-val akkaV = "2.5.12"
-val streamKafkaV = "0.20"
-val confluentV = "4.1.0"
-val pickleV = "0.6.4"
-val connectV = "1.1.0"
-val jacksonV = "2.9.5"
+val akkaV = "2.5.18"
+val streamKafkaV = "1.0-M1"
+val confluentV = "5.0.1"
+val pickleV = "0.6.7"
+val connectV = "2.0.1"
+val jacksonV = "2.9.7"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream-kafka" % streamKafkaV,
